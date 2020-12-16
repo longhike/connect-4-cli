@@ -8,9 +8,9 @@ a CLI connect-4 game made with Node.js
         [x] win horizontally
         [x] win vertically
         [ ] win diagonally
-    [ ] input validation
-        [ ] don't allow <1, >6
-        [ ] don't allow non-integer input
+    [x] input validation
+        [x] don't allow <1, >6
+        [x] don't allow non-integer input
     [ ] pretty-up CLI board
         [ ] null values instead of numeric values
         [ ] show column numbers at the top of board

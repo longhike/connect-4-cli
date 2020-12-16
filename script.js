@@ -3,6 +3,7 @@ const inquirer = require('inquirer');
 let this_turn;
 let board;
 let win = false;
+const invalid = "This is not a valid entry. Use a number from 1 - 6."
 
 setGame();
 
@@ -14,7 +15,6 @@ function setGame() {
 }
 
 function askQuestion() {
-    switchTurn();
     console.log(board);
     inquirer
         .prompt([{
@@ -22,15 +22,22 @@ function askQuestion() {
             message: `It's ${this_turn}'s turn: enter the column in which you'd like to play (1 - 6): `
         }])
         .then(res => {
-            makeMove(board, this_turn, res.move);
-            win = checkWin(board, this_turn);
-            if (win) {
-                console.log(`${this_turn} won!`);
-                console.log(board);
+            if (isNaN(parseInt(res.move)) || parseInt(res.move) < 1 || parseInt(res.move) > 6) {
+                console.error(invalid);
+                askQuestion()
+            } else {
+                makeMove(board, this_turn, res.move);
+                win = checkWin(board, this_turn);
+                if (win) {
+                    console.log(`${this_turn} won!`);
+                    console.log(board);
+                }
+                else {
+                    switchTurn();
+                    askQuestion();
+                }
             }
-            else {
-                askQuestion();
-            }
+            
         })
 }
 
@@ -95,6 +102,7 @@ function makeMove(array, turn, move_col) {
             return;
         }
     }
+    
 }
 
 function boardMaker(col, row) {
