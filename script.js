@@ -1,11 +1,16 @@
-const inquirer = require('inquirer');
+// PACKAGES
+const inquirer = require('inquirer')
+const prompt = inquirer.prompt
+const chalk = require('chalk')
 
-let this_turn;
-let board;
-let win = false;
-const invalid = "This is not a valid entry. Use a number from 1 - 6."
+// GLOBAL VARIABLES
+let this_turn; // this holds the string "red" or "black"; changed by switchTurn() function
+let board; // this holds the matrix rendered by boardMaker() and setBoard()
+let win = false; // this stays false until a win situation is validated
+const invalid_msg = "This is not a valid entry. Use a number from 1 - 6." // string message to be logged to user if input invalid
 
-setGame();
+
+setGame(); // GAME FRAMEWORK
 
 function setGame() {
     board = boardMaker(7, 6);
@@ -14,25 +19,32 @@ function setGame() {
     askQuestion();
 }
 
+// GAME LOOP
+// show the user the board as a matrix; ask them which column they'd like to play, tell them which turn it is. 
 function askQuestion() {
     console.log(board);
-    inquirer
-        .prompt([{
+    prompt([{
             name: 'move',
             message: `It's ${this_turn}'s turn: enter the column in which you'd like to play (1 - 6): `
         }])
         .then(res => {
+            // validate response (must be a number, must be greater than/equal to 1, less than/equal to 6)
             if (isNaN(parseInt(res.move)) || parseInt(res.move) < 1 || parseInt(res.move) > 6) {
-                console.error(invalid);
-                askQuestion()
+                console.error(chalk.red.bold(invalid_msg));
+                askQuestion() // if it's an invalid entry, re-do function without switching turns
             } else {
-                makeMove(board, this_turn, res.move);
+                // IF VALD RESPONSE:
+                makeMove(board, this_turn, res.move); 
+                // "win" will be true or false, based on the return of checkWin()
                 win = checkWin(board, this_turn);
                 if (win) {
-                    console.log(`${this_turn} won!`);
+                    // if a player wins, log message and board, end recursion
+                    console.log(chalk.bold(`${this_turn.toUpperCase()} WON!`));
                     console.log(board);
                 }
                 else {
+                    // if no win, switch the turn, askQuestion() recursion
+                    winByLeftDiag(board, this_turn) // THIS IS HERE AS A TEST; TO BE UNCOMMENTED IN THE checkWin() FUNCTION ONCE IT WORKS AND REMOVED FROM THIS IF/ELSE
                     switchTurn();
                     askQuestion();
                 }
@@ -40,18 +52,17 @@ function askQuestion() {
             
         })
 }
-
+// check each win-case (vertical, horizontal, left/right diagonal) - return true if any of them return true; otherwise return false
 function checkWin(board, turn) {
     if (winByRow(board, turn) || winByCol(board, turn) /*  || winByLeftDiag(board, turn) || winByRightDiag(board, turn) */) {
         return true;
     }
-
     return false;
 }
-
+// horizontal win check - in each row, if any 4 adjacent elements have the same value, return true; otherwise, return false
 function winByRow(board, turn) {
-    for (i = 0; i < board.length; i++) {
-        for(j = 0; j < board[i].length; j++) {
+    for (let i = 0; i < board.length; i++) {
+        for(let j = 0; j < board[i].length; j++) {
             if (board[i][j] === turn && board[i][j+1] === board[i][j] && board[i][j+2] === board[i][j+1] && board[i][j+3] === board[i][j+2]) {
                 return true;
             }
@@ -59,21 +70,30 @@ function winByRow(board, turn) {
     }
     return false;
 }
-
+// vertical win check - in each column, add each row value to a check array; if the check array resolves as true, return true; otherwise, keep iterating through; if no columns return true when passed to the check array, return false
 function winByCol(board, turn) {
-    for (j = 0; j < board[0].length; j++ ) {
+    for (let j = 0; j < board[0].length; j++ ) {
         let check_array = []
-        for (i = 0; i < board.length; i++) {
+        for (let i = 0; i < board.length; i++) {
             check_array.push(board[i][j])        
         }
         if (winHelper(check_array, turn)) {
             return true;
         }
     }
-
     return false;
 }
-
+// IN PROGRESS FUNCTION
+function winByLeftDiag(board, turn) {
+    let this_turn_coords = getValue(board, turn)
+    let num_true = 0;
+    console.log(this_turn_coords);
+    for (let i = 0; i < this_turn_coords.length; i++) {
+        console.log(this_turn_coords[i].x);
+        console.log(this_turn_coords[i].y);
+    } 
+}
+// helper function to return true if a passed array values resolve; otherwise, return false
 function winHelper(array, turn) {
     let i = 0;
     while (i < array.length - 3) {
@@ -85,7 +105,7 @@ function winHelper(array, turn) {
     return false;
 
 }
-
+// checks turn, switches to other.
 function switchTurn() {
     if (this_turn === "red") {
         this_turn = "black";
@@ -93,57 +113,47 @@ function switchTurn() {
         this_turn = "red";
     }
 }
-
+// make move function takes the matrix, the turn, and the move column as identified by the user; iterates through whole matrix in reverse to check whether the last possible value is a number; if so, it's a valid place to move; if not, it'll check the next one.
 function makeMove(array, turn, move_col) {
     let parse_move = move_col - 1
-    for (i = array.length - 1; i >= 0; i--) {
+    for (let i = array.length - 1; i >= 0; i--) {
         if (!isNaN(parseInt(array[i][parse_move]))) {
             array[i][parse_move] = turn;
             return;
         }
     }
-    
 }
 
+// creates the matrix creating an array of arrays; returns the array of arrays.
 function boardMaker(col, row) {
     let arr = new Array(col)
     for (i = 0; i < arr.length; i++) {
         arr[i] = new Array(row);
     }
-
     return arr;
 }
 
+// adds the values (num as string for now) to the matrix
 function setBoard (array) {
     let insert = 1;
-
     for(i = 0; i < array.length; i++) {
-        let this_col = array[i]
-        for (j = 0; j < this_col.length; j++) {
-            this_col[j] = insert.toString()
+        for (j = 0; j < array[i].length; j++) {
+            array[i][j] = insert.toString()
             insert += 1
         }
     }
 
 }
 
+// takes the matrix, value, returns an array of objects {x, y, value} to be used to check diagonal wins
 function getValue (array, target) {
-    let resObj = {
-        "x": null,
-        "y": null,
-        "value": null
-    }
-    for (i = 0; i < array.length; i++) {
-        let this_col = array[i]
-        for (j = 0; j < this_col.length; j++) {
-            if (this_col[j] === target.toString()) {
-                resObj["x"] = i
-                resObj["y"] = j
-                resObj["value"] = target
+    let res_array = []
+    for (let i = 0; i < array.length; i++) {
+        for (let j = 0; j < array[i].length; j++) {
+            if (array[i][j] === target.toString()) {
+                res_array.push({"x": j, "y": i, "value": target})
             } 
         }
     }
-
-    return resObj;
-    
+    return res_array;
 }
