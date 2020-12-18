@@ -11,8 +11,8 @@ a CLI connect-4 game made with Node.js
     [x] input validation
         [x] don't allow <1, >6
         [x] don't allow non-integer input
-    [ ] pretty-up CLI board
-        [ ] null values instead of numeric values
-        [ ] show column numbers at the top of board
+    [x] pretty-up CLI board
+        [x] null values instead of numeric values
+        [x] show column numbers at the top of board
     [ ] clean up code
         [ ] modularize functions

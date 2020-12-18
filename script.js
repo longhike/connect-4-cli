@@ -2,18 +2,46 @@
 const inquirer = require('inquirer')
 const prompt = inquirer.prompt
 const chalk = require('chalk')
+const { table } = require('table')
+
+let table_options = {
+    columns: {
+        0: {
+            width: 10
+        },
+        1: {
+            width: 10
+        },
+        2: {
+            width: 10
+        },
+        3: {
+            width: 10
+        },
+        4: {
+            width: 10
+        },
+        5: {
+            width: 10
+        },
+        6: {
+            width: 10
+        },
+    }
+}
 
 // GLOBAL VARIABLES
+let table_header = [['1', '2', '3', '4', '5', '6', '7']]
 let this_turn; // this holds the string "red" or "black"; changed by switchTurn() function
-let board; // this holds the matrix rendered by boardMaker() and setBoard()
+let board; // this holds the matrix rendered by boardMaker() and setBoard()f
 let win = false; // this stays false until a win situation is validated
-const invalid_msg = "This is not a valid entry. Use a number from 1 - 6." // string message to be logged to user if input invalid
+const invalid_msg = "This is not a valid entry. Use a number from 1 - 7." // string message to be logged to user if input invalid
 
 
 setGame(); // GAME FRAMEWORK
 
 function setGame() {
-    board = boardMaker(7, 6);
+    board = boardMaker(6, 7);
     setBoard(board);
     this_turn = "red";
     askQuestion();
@@ -22,14 +50,15 @@ function setGame() {
 // GAME LOOP
 // show the user the board as a matrix; ask them which column they'd like to play, tell them which turn it is. 
 function askQuestion() {
-    console.log(board);
+    console.log(table(table_header, table_options));
+    console.log(table(board, table_options));
     prompt([{
             name: 'move',
-            message: `It's ${this_turn}'s turn: enter the column in which you'd like to play (1 - 6): `
+            message: `It's ${this_turn}'s turn: enter the column in which you'd like to play (1 - 7): `
         }])
         .then(res => {
             // validate response (must be a number, must be greater than/equal to 1, less than/equal to 6)
-            if (isNaN(parseInt(res.move)) || parseInt(res.move) < 1 || parseInt(res.move) > 6) {
+            if (isNaN(parseInt(res.move)) || parseInt(res.move) < 1 || parseInt(res.move) > 7) {
                 console.error(chalk.red.bold(invalid_msg));
                 askQuestion() // if it's an invalid entry, re-do function without switching turns
             } else {
@@ -39,8 +68,8 @@ function askQuestion() {
                 win = checkWin(board, this_turn);
                 if (win) {
                     // if a player wins, log message and board, end recursion
-                    console.log(chalk.bold(`${this_turn.toUpperCase()} WON!`));
-                    console.log(board);
+                    console.log(chalk.magenta.bold(`CONGRATS ${this_turn.toUpperCase()} - YOU WON!!!!!!`));
+                    console.log(table(board, table_options));
                 }
                 else {
                     // if no win, switch the turn, askQuestion() recursion
@@ -121,7 +150,7 @@ function winHelper(array, turn) {
 // checks turn, switches to other.
 function switchTurn() {
     if (this_turn === "red") {
-        this_turn = "black";
+        this_turn = "yellow";
     } else {
         this_turn = "red";
     }
@@ -130,7 +159,7 @@ function switchTurn() {
 function makeMove(array, turn, move_col) {
     let parse_move = move_col - 1
     for (let i = array.length - 1; i >= 0; i--) {
-        if (!isNaN(parseInt(array[i][parse_move]))) {
+        if (array[i][parse_move] === null) {
             array[i][parse_move] = turn;
             return;
         }
@@ -148,17 +177,17 @@ function boardMaker(col, row) {
 
 // adds the values (num as string for now) to the matrix
 function setBoard (array) {
-    let insert = 1;
+    let insert = null;
     for(i = 0; i < array.length; i++) {
         for (j = 0; j < array[i].length; j++) {
-            array[i][j] = insert.toString()
-            insert += 1
+            array[i][j] = insert
         }
     }
 
 }
 
 // takes the matrix, value, returns an array of objects {x, y, value} to be used to check diagonal wins
+// USING AS A TESTER FUNCTION
 function getValue (array, target) {
     let res_array = []
     for (let i = 0; i < array.length; i++) {
