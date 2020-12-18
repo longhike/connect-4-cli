@@ -44,7 +44,6 @@ function askQuestion() {
                 }
                 else {
                     // if no win, switch the turn, askQuestion() recursion
-                    winByLeftDiag(board, this_turn) // THIS IS HERE AS A TEST; TO BE UNCOMMENTED IN THE checkWin() FUNCTION ONCE IT WORKS AND REMOVED FROM THIS IF/ELSE
                     switchTurn();
                     askQuestion();
                 }
@@ -54,7 +53,7 @@ function askQuestion() {
 }
 // check each win-case (vertical, horizontal, left/right diagonal) - return true if any of them return true; otherwise return false
 function checkWin(board, turn) {
-    if (winByRow(board, turn) || winByCol(board, turn) /*  || winByLeftDiag(board, turn) || winByRightDiag(board, turn) */) {
+    if (winByRow(board, turn) || winByCol(board, turn)   || winByNegSlope(board, turn) || winByPosSlope(board, turn)) {
         return true;
     }
     return false;
@@ -83,16 +82,30 @@ function winByCol(board, turn) {
     }
     return false;
 }
-// IN PROGRESS FUNCTION
-function winByLeftDiag(board, turn) {
-    let this_turn_coords = getValue(board, turn)
-    let num_true = 0;
-    console.log(this_turn_coords);
-    for (let i = 0; i < this_turn_coords.length; i++) {
-        console.log(this_turn_coords[i].x);
-        console.log(this_turn_coords[i].y);
-    } 
+// negative slope win
+function winByNegSlope(board, turn) {
+    for (i = 0; i < board.length - 3; i++) {
+        for (j = 0; j < board[i].length - 3; j++) {
+            if (board[i][j] === turn && board[i+1][j+1] === turn && board[i+2][j+2] === turn && board[i+3][j+3] === turn) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
+
+// positive slope win
+function winByPosSlope(board, turn) {
+    for (i = 2; i < board.length; i++) {
+        for (j = 2; j < board[i].length; j++) {
+            if (board[i][j] === turn && board[i-1][j-1] === turn && board[i-2][j-2] === turn && board[i-3][j-3] === turn) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 // helper function to return true if a passed array values resolve; otherwise, return false
 function winHelper(array, turn) {
     let i = 0;
