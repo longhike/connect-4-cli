@@ -7,25 +7,32 @@ const { table } = require('table')
 let table_options = {
     columns: {
         0: {
-            width: 10
+            width: 10,
+            alignment: 'center'
         },
         1: {
-            width: 10
+            width: 10,
+            alignment: 'center'
         },
         2: {
-            width: 10
+            width: 10,
+            alignment: 'center'
         },
         3: {
-            width: 10
+            width: 10,
+            alignment: 'center'
         },
         4: {
-            width: 10
+            width: 10,
+            alignment: 'center'
         },
         5: {
-            width: 10
+            width: 10,
+            alignment: 'center'
         },
         6: {
-            width: 10
+            width: 10,
+            alignment: 'center'
         },
     }
 }
@@ -34,7 +41,7 @@ let table_options = {
 let table_header = [['1', '2', '3', '4', '5', '6', '7']]
 let this_turn; // this holds the string "red" or "black"; changed by switchTurn() function
 let board; // this holds the matrix rendered by boardMaker() and setBoard()f
-let win = false; // this stays false until a win situation is validated
+let win = false; // this stays false until a win situation returns true
 const invalid_msg = "This is not a valid entry. Use a number from 1 - 7." // string message to be logged to user if input invalid
 
 
@@ -113,11 +120,13 @@ function winByCol(board, turn) {
 }
 // negative slope win
 function winByNegSlope(board, turn) {
-    for (i = 0; i < board.length - 3; i++) {
-        for (j = 0; j < board[i].length - 3; j++) {
-            if (board[i][j] === turn && board[i+1][j+1] === turn && board[i+2][j+2] === turn && board[i+3][j+3] === turn) {
-                return true;
-            }
+    for (let i = 0; i < board.length-2; i++) {
+        if (board[i+3] !== undefined) {
+            for (let j = 0; j < board[i].length; j++) {
+                if (board[i][j] === turn && board[i+1][j+1] === turn && board[i+2][j+2] === turn && board[i+3][j+3] === turn) {
+                    return true;
+                }
+            }        
         }
     }
     return false;
@@ -125,10 +134,12 @@ function winByNegSlope(board, turn) {
 
 // positive slope win
 function winByPosSlope(board, turn) {
-    for (i = 2; i < board.length; i++) {
-        for (j = 2; j < board[i].length; j++) {
-            if (board[i][j] === turn && board[i-1][j-1] === turn && board[i-2][j-2] === turn && board[i-3][j-3] === turn) {
-                return true;
+    for (let i = 0; i < board.length-2; i++) {;
+        if (board[i+3] !== undefined) {
+            for (let j = 0; j < board[i].length; j++) {
+                if (board[i][j] === turn && board[i+1][j-1] === turn && board[i+2][j-2] === turn && board[i+3][j-3] === turn) {
+                    return true;
+                }
             }
         }
     }
